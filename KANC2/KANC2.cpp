@@ -93,7 +93,7 @@ int main() {
     double sensitivity = 0.06;
     int innerPoints = 6;
     int outerPoints = 12;
-    double muInner = 0.1;
+    double muInner = 0.01;
     double muOuter = 0.01;
     auto f = std::make_unique<Formula3>();
 
