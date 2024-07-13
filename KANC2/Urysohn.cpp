@@ -26,14 +26,12 @@ Urysohn::Urysohn(const Urysohn& uri) {
 }
 
 void Urysohn::UpdateUsingInput(double delta, std::unique_ptr<double[]>& inputs, double mu) {
-	delta /= _length;
 	for (int i = 0; i < _length; ++i) {
 		_univariateList[i]->UpdateUsingInput(inputs[i], delta, mu);
 	}
 }
 
 void Urysohn::UpdateUsingMemory(double delta, double mu) {
-	delta /= _length;
 	for (int i = 0; i < _length; ++i) {
 		_univariateList[i]->UpdateUsingMemory(delta, mu);
 	}
