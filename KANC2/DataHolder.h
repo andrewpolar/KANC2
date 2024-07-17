@@ -6,7 +6,7 @@ public:
 	~Formula3();
 	std::unique_ptr<std::unique_ptr<double[]>[]> inputs;
 	std::unique_ptr<double[]> target;
-	int _N;
+	int _N = 0;
 	const int nInputs = 5;
 	void GetInput(std::unique_ptr<double[]>& input);
 	double GetTarget(std::unique_ptr<double[]>& input);
@@ -22,7 +22,7 @@ public:
 	std::unique_ptr<std::unique_ptr<double[]>[]> inputs;
 	std::unique_ptr<double[]> target;
 	void GenerateData(int N);
-	int _N;
+	int _N = 0;
 	const int nInputs = 6;
 	void GetInput(std::unique_ptr<double[]>& input);
 	double GetTarget(std::unique_ptr<double[]>& input);
@@ -39,7 +39,7 @@ public:
 	std::unique_ptr<std::unique_ptr<double[]>[]> inputs;
 	std::unique_ptr<double[]> target;
 	void GenerateData(int N);
-	int _N;
+	int _N = 0;
 	const int nInputs = 2;
 	void GetInput(std::unique_ptr<double[]>& input);
 	double GetTarget(std::unique_ptr<double[]>& input);
@@ -49,4 +49,6 @@ private:
 	const double _min = -1.0;
 	const double _max = 1.0;
 };
+
+
 
