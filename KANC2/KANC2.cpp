@@ -20,6 +20,7 @@
 //Formula3 is Mike's formula.
 
 #include <iostream>
+#include <thread>
 #include "DataHolder.h"
 #include "KANAddend.h"
 
@@ -65,6 +66,37 @@ void FindMinMax(std::unique_ptr<double[]>& xmin, std::unique_ptr<double[]>& xmax
     for (int j = 0; j < nRows; ++j) {
         if (target[j] < targetMin) targetMin = target[j];
         if (target[j] > targetMax) targetMax = target[j];
+    }
+}
+
+void Training(std::unique_ptr<std::unique_ptr<double[]>[]>& inputs, std::unique_ptr<double[]>& target, 
+    std::unique_ptr<std::unique_ptr<KANAddend>[]>& addends, int nRecords, int nEpochs, int nModels,
+    int marginStart, int marginEnd, double sensitivity) {
+
+    auto residualError = std::make_unique<double[]>(nRecords);
+    int end = nEpochs - marginEnd;
+    for (int epoch = 0; epoch < nEpochs; ++epoch) {
+        double error2 = 0.0;
+        int cnt = 0;
+        for (int i = 0; i < nRecords; ++i) {
+            if (epoch >= marginStart && epoch < end && residualError[i] < sensitivity) continue;
+            double residual = target[i];
+            for (int j = 0; j < nModels; ++j) {
+                residual -= addends[j]->ComputeUsingInput(inputs[i]);
+            }
+            for (int j = 0; j < nModels; ++j) {
+                addends[j]->UpdateUsingMemory(residual);
+            }
+            error2 += residual * residual;
+            residualError[i] = static_cast<double>(fabs(residual));
+            ++cnt;
+        }
+        if (0 == cnt) error2 = 0.0;
+        else {
+            error2 /= cnt;
+            error2 = sqrt(error2);
+        }
+        printf("Training step %d, current RMSE %4.4f\n", epoch, error2);
     }
 }
 
@@ -133,38 +165,9 @@ int main() {
             outerPoints, muInner, muOuter, f->nInputs);
     }
 
-    //Training
-    auto residualError = std::make_unique<double[]>(nRecords);
-    int end = nEpochs - marginEnd;
-    for (int epoch = 0; epoch < nEpochs; ++epoch) {
-        double error2 = 0.0;
-        int cnt = 0;
-        for (int i = 0; i < nRecords; ++i) {
-            if (epoch >= marginStart && epoch < end && residualError[i] < sensitivity) continue;
-            double residual = f->target[i];
-            for (int j = 0; j < nModels; ++j) {
-                residual -= addends[j]->ComputeUsingInput(f->inputs[i]);
-            }
-            for (int j = 0; j < nModels; ++j) {
-                //this method reuses properties computed in ComputeUsingInput
-                addends[j]->UpdateUsingMemory(residual);
-
-                //next method updates independently without reusing properties computed
-                //by ComputeUsingInput
-                //addends[j]->UpdateUsingInput(f->inputs[i], residual);
-            }
-            error2 += residual * residual;
-            residualError[i] = static_cast<double>(fabs(residual));
-            ++cnt;
-        }
-        if (0 == cnt) error2 = 0.0;
-        else {
-            error2 /= cnt;
-            error2 = sqrt(error2);
-            error2 /= (targetMax - targetMin);
-        }
-        printf("Training step %d, relative RMSE %4.4f\n", epoch, error2);
-    }
+    std::thread t(Training, std::ref(f->inputs), std::ref(f->target), std::ref(addends), 
+        nRecords, nEpochs, nModels, marginStart, marginEnd, sensitivity);
+    t.join();
 
     clock_t end_encoding = clock();
     printf("Time for training %2.3f sec.\n", (double)(end_encoding - start_encoding) / CLOCKS_PER_SEC);
@@ -204,4 +207,6 @@ int main() {
     error3 /= (targetMax - targetMin);
     printf("\nRelative RMSE for unseen data %f, RMSE for copy object %f\n", error, error3);
 }
+
+
 
