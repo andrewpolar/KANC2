@@ -11,8 +11,6 @@ public:
     int _points;
     double _xmin;
     double _xmax;
-    double _ymin;
-    double _ymax;
     double GetDerivative(double x);
     void UpdateUsingInput(double x, double delta, double mu);
     void UpdateUsingMemory(double delta, double mu);
@@ -23,6 +21,6 @@ private:
     int _lastLeftIndex;
     double _lastLeftOffset;
     void SetLimits();
-    void SetRandomFunction();
+    void SetRandomFunction(double ymin, double ymax);
     void FitDefinition(double x);
 };
