@@ -5,10 +5,8 @@ Univariate::Univariate(double xmin, double xmax, double ymin, double ymax, int p
     _points = points;
     _xmin = xmin;
     _xmax = xmax;
-    _ymin = ymin;
-    _ymax = ymax;
     SetLimits();
-    SetRandomFunction();
+    SetRandomFunction(ymin, ymax);
 }
 
 Univariate::~Univariate() {
@@ -18,8 +16,6 @@ Univariate::Univariate(const Univariate& uni) {
     _points = uni._points;
     _xmin = uni._xmin;
     _xmax = uni._xmax;
-    _ymin = uni._ymin;
-    _ymax = uni._ymax;
     _deltax = (_xmax - _xmin) / (_points - 1);
     _y.reset(nullptr);
     _y = std::make_unique<double[]>(_points);
@@ -38,7 +34,7 @@ void Univariate::SetLimits() {
     _deltax = (_xmax - _xmin) / (_points - 1);
 }
 
-void Univariate::SetRandomFunction() {
+void Univariate::SetRandomFunction(double ymin, double ymax) {
     _y = std::make_unique<double[]>(_points);
     for (int i = 0; i < _points; ++i)
     {
@@ -53,7 +49,7 @@ void Univariate::SetRandomFunction() {
     if (min == max) max = min + 1.0;
     for (int i = 0; i < _points; ++i)
     {
-        _y[i] = (_y[i] - min) / (max - min) * (_ymax - _ymin) + _ymin;
+        _y[i] = (_y[i] - min) / (max - min) * (ymax - ymin) + ymin;
     }
 }
 
